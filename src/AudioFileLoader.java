@@ -34,7 +34,7 @@ public class AudioFileLoader {
         int bytesToShow = Math.min(count, audioData.length);
         byte[] firstBytes = Arrays.copyOf(audioData, bytesToShow);
 
-        System.out.print("Первые " + bytesToShow + " байт (НЕХ): ");
+        System.out.print("Первые " + bytesToShow + " байт (HEX): ");
         for (byte b : firstBytes) {
             System.out.print(String.format("%02X", b & 0xFF));
         }

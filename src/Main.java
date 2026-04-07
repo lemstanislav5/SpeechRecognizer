@@ -1,6 +1,6 @@
 import java.io.File;
 import java.io.IOException;
-//  TEST!!!!!!!!!!!
+//  TE!!!!
 public class Main {
 
     public static int fileCounter = 0;

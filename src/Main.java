@@ -36,6 +36,7 @@ public class Main {
         try {
             audioLoader.load();
             audioLoader.showFirstBytes(16);
+            audioLoader.countByte((byte) 0x00);
 
             System.out.println("\nИнформация о файле");
             System.out.println("Имя: " + audioLoader.getFileName());

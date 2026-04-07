@@ -51,4 +51,20 @@ public class AudioFileLoader {
     public byte[] getAudioData(){
         return audioData;
     }
+
+    // Считает, сколько раз встречается заданный байт в файле
+    public void countByte(byte targetByte) {
+        if (audioData == null) {
+            System.out.println("Файл не загружен");
+            return;
+        }
+
+        int count = 0;
+        for (byte b : audioData) {
+            if (b == targetByte) {
+                count++;
+            }
+        }
+        System.out.println("Байт " + targetByte + " встречается " + count + " раз");
+    }
 }

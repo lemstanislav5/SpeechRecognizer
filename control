@@ -1,0 +1,9 @@
+Package: speechrecognizer
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: Your Name <your.email@example.com>
+Depends: default-jre (>= 11)
+Description: Speech Recognition App
+ Программа для распознавания речи с использованием Vosk

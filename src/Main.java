@@ -1,80 +1,123 @@
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.FileInputStream;
 import java.io.IOException;
-//  TE4324234121223212124!!!!
+import java.util.Scanner;
+
+// Импортируем классы Vosk
+import org.vosk.Model;
+import org.vosk.Recognizer;
+
 public class Main {
 
-    public static int fileCounter = 0;
+    public static void main(String[] args) throws IOException {
+        System.out.println("=== РАСПОЗНАВАНИЕ РЕЧИ (Vosk) ===\n");
 
-    public static void main(String[] args) {
-        // Загружаем сохраненный счетчик
-        fileCounter = loadCounter();
+        System.out.println("=== Укажите путь к аудиофайлу ===");
+        System.out.println("ПРИМЕР Linux: /home/io/Рабочий стол/Франциск-Асизский.wav");
+        System.out.println("ПРИМЕР Windows: C:\\Users\\Admin\\Desktop\\Франциск-Асизский.wav");
+        System.out.println("ВАЖНО: Формат: WAV, 16 кГц, моно, 16 бит");
 
-        System.out.println("Программа начала работу");
-        System.out.println("Это запуск № " + (fileCounter + 1));
-        // Провекряем, передан ли аргумент (путь к файлу)
-        if (args.length == 0) {
-            System.out.println("ОШИБКА: не указан путь к аудиофайлу");
-            System.out.println("Пример использования: java SpeechRecognize test");
-            System.out.println("Проект завершил работу с ошибкой");
+        // Создаем сканер
+        Scanner sc = new Scanner(System.in);
+        String wavFilePath = sc.nextLine();
+        File audioFile = new File(wavFilePath);
+
+        if (!audioFile.exists()) {
+            System.out.println("ОШИБКА: файл не найден - " + wavFilePath);
             return;
         }
-        String filePath = args[0];
-        System.out.println("Обрабатываю файл: " + filePath);
+        System.out.println("\n=== Укажите файл вывода данных в формате txt ===");
+        System.out.println("ПРИМЕР Linux: /home/io/Рабочий стол/stenogramma.txt");
+        System.out.println("ПРИМЕР Windows: C:\\Users\\Admin\\Desktop\\stenogramma.txt");
+        System.out.println("ВАЖНО: Если файл уже создан он будет перезаписан!");
+        String textFilePath = sc.nextLine();
 
-        // Проверяем существующий файл
-        File file = new File(filePath);
-        if (!file.exists()) {
-            System.out.println("ОШИБКА: файл не найден");
+        File file = new File(textFilePath);
+        // Извлекаем информацию о папке (C:/NewFolder/SubFolder)
+        File dir = file.getParentFile();
+
+        // Проверяем существует ли такой путь
+        if (dir != null && !dir.exists()) {
+            System.out.println("ОШИБКА: путь к текстовому файлу указан неверно");
             return;
         }
 
-        System.out.println("Файл существует! Весит: " + file.length() + " байт");
 
-        // Создаем объект для работы с аудио
-        AudioFileLoader audioLoader = new AudioFileLoader(filePath);
+        System.out.println("Аудиофайл: " + audioFile.getName());
+        System.out.println("Размер: " + audioFile.length() + " байт");
+
+        // Путь к модели (укажите правильный путь)
+        String modelPath = "/usr/local/share/speechrecognizer/vosk-model-ru-0.42";
+        // StringBuilder для сбора всей стенограммы
+        StringBuilder fullTranscript = new StringBuilder();
 
         try {
-            audioLoader.load();
-            audioLoader.showFirstBytes(16);
-            audioLoader.countByte((byte) 0x00);
+            // Загружаем модель
+            System.out.println("\nЗагрузка модели распознавания...");
+            Model model = new Model(modelPath);
+            System.out.println("Модель загружена!");
 
-            System.out.println("\nИнформация о файле");
-            System.out.println("Имя: " + audioLoader.getFileName());
+            // Создаем распознаватель
+            Recognizer recognizer = new Recognizer(model, 16000);
+            System.out.println("Распознаватель готов!");
 
-            System.out.println("\nПроект успешно обработал файл!");
+            // Открываем аудиофайл
+            FileInputStream audioStream = new FileInputStream(audioFile);
+
+            // Буфер для чтения аудио
+            byte[] buffer = new byte[4096];
+            int bytesRead;  // ← исправлено byteRead → bytesRead
+
+            System.out.println("Распознавание речи...\n");
+
+            // Читаем аудио и распознаем
+            while ((bytesRead = audioStream.read(buffer)) >= 0) {
+                if (recognizer.acceptWaveForm(buffer, bytesRead)) {
+                    String result = recognizer.getResult();
+                    String text = extractText(result);
+                    if (!text.isEmpty()) {
+                        fullTranscript.append(text).append(" ");
+                    }
+                }
+            }
+
+            String finalResult = recognizer.getFinalResult();
+            String finalText = extractText(finalResult);
+
+            fullTranscript.append("\n=== ИТОГОВАЯ СТЕНОГРАММА ===\n");
+            fullTranscript.append(finalText);
+
+            System.out.println("\n=== ИТОГОВАЯ СТЕНОГРАММА ===");
+            System.out.println(finalText);
+            System.out.println("============================");
+
+            // Сохраняем полную стенограмму
+            Files.writeString(Paths.get(textFilePath), fullTranscript.toString());
+            System.out.println("\nПолная стенограмма сохранена в: " + textFilePath);
+
+            audioStream.close();
+            recognizer.close();
+            model.close();
+
+            System.out.println("\nРаспознавание завершено!");
 
         } catch (IOException e) {
-            System.out.println("ОШИБКА при загрузке файла: " + e.getMessage());
-        }
-        System.out.println("Работа программы завершена!");
-        fileCounter = fileCounter + 1;
-        saveCounter(fileCounter);
-        System.out.println("Обработано файлов за все время: " + fileCounter);
-        System.out.println("Спасибо за использование! Хорошего дня!");
-    }
-
-    // Сохраняем счетчик в файл
-    private static void saveCounter(int counter) {
-        try {
-            java.nio.file.Files.writeString(
-                    java.nio.file.Paths.get("counter.txt"),
-                    String.valueOf(counter)
-            );
-        } catch (IOException e) {
-            System.out.println("Не удалось сохранить счетчик");
+            System.out.println("ОШИБКА: " + e.getMessage());  // ← исправлено ystem → System
+            e.printStackTrace();
         }
     }
 
-    // Загружаем счетчик из файла
-    private static int loadCounter() {
-        try {
-            String text = java.nio.file.Files.readString(
-                java.nio.file.Paths.get("counter.txt")
-            );
-            return Integer.parseInt(text);
-        } catch (IOException e) {
-            return 0; // если нет файла начинаем с 0
-        }
-    }
+    // Извлекает текст из JSON-ответа Vosk
+    private static String extractText(String json) {
+        int start = json.indexOf("\"text\" : \"");
+        if (start == -1) return "";
 
+        start += 10;
+        int end = json.indexOf("\"", start);
+
+        if (end == -1) return "";
+        return json.substring(start, end);
+    }
 }

@@ -1,30 +1,28 @@
-### IntelliJ IDEA ###
+# Компиляция
 out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-.kotlin
+*.class
+build/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+# Модели (везде)
+models/
+**/vosk-model-*/
+*.mdl
+*.fst
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Сборка и пакеты
+myapp/
+*.deb
+*.rpm
 
-### VS Code ###
-.vscode/
+# IDE
+.idea/
+*.iml
+*.swp
 
-### Mac OS ###
+# Временные
+counter.txt
+*.log
 .DS_Store
+
+# Библиотеки (если большие)
+# lib/

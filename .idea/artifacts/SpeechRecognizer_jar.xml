@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="SpeechRecognizer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/SpeechRecognizer_jar</output-path>
+    <root id="root">
+      <element id="archive" name="SpeechRecognizer.jar">
+        <element id="module-output" name="SpeechRecognizer" />
+      </element>
+      <element id="library" level="project" name="vosk-0.3.45" />
+      <element id="library" level="project" name="jna-5.18.1" />
+    </root>
+  </artifact>
+</component>
